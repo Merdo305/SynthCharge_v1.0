@@ -8,17 +8,7 @@ from being confused with the implementation associated with the first paper.
 
 ## Provenance
 
-The first arXiv version of the SynthCharge paper was posted on March 3, 2026.
-The preserved bundle contains:
-
-| File | Preserved modification time | SHA-256 |
-|---|---|---|
-| `SynChrg.py` | 2026-03-05 10:26:12 | `4645E953A74B4519042DE7B39416EB087610C2446A3E88F8D16FC058F1173657` |
-| `data_generator.py` | 2026-03-05 10:41:03 | `5ED1D4CA0F5DB5A62BECEEE96DA984851FD16A98673369565C0D6D819923F7F0` |
-| `milp.py` | 2026-01-26 15:46:11 | `6C5B6694D2F4A38FEB2B1BA2F345EBC858B439DE807082E3C1F5FB25120E3DA3` |
-
-Because two files postdate the arXiv submission, this bundle is called the
-paper-era snapshot. It is not claimed to be the exact submission-day source.
+This repository contains the SynthCharge v1.0 implementation associated with the accompanying paper. Later corrections and extensions will be documented through versioned GitHub releases.
 
 ## Known differences and limitations
 
