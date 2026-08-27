@@ -41,11 +41,7 @@ provided below, and GitHub can also generate citation information from
 
 ## Release status
 
-This repository begins with the earliest preserved integrated SynthCharge
-source bundle associated with the first arXiv paper. The arXiv version was
-posted on March 3, 2026, while two files in the preserved bundle were last
-modified on March 5, 2026. It is therefore described as the **paper-era
-snapshot**, not as a byte-for-byte archive of the submission-day code.
+This repository contains SynthCharge v1.0, including the graphical interface, instance generator, feasibility screening procedures, and optional optimization solver described in the associated paper.
 
 The three original source files are preserved without modification:
 
