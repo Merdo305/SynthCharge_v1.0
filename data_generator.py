@@ -68,7 +68,7 @@ def generate_customers(n_customers, instance_type, random_seed=None, n_clusters=
     return coords, labels
 
 # ==============================================================================
-# SECTION 3: ADAPTIVE CHARGING STATIONS (FIXED & UNIQUE)
+# SECTION 3: ADAPTIVE CHARGING STATIONS 
 # ==============================================================================
 def place_necessary_charging_stations(depot, customers, battery_capacity, consumption_rate=0.25, rng=None):
     if rng is None: rng = np.random.default_rng()
@@ -82,7 +82,6 @@ def place_necessary_charging_stations(depot, customers, battery_capacity, consum
             d = np.linalg.norm(c1-c2)
             if d*consumption_rate > battery_capacity*0.8:
                 mid = 0.5*(c1+c2)
-                # FIX: Use the instance-specific RNG for noise, not global np.random
                 noise = (rng.random(2)-0.5) * 0.1 
                 stations.append(np.clip(mid+noise, 0, 1))
                 
@@ -194,29 +193,7 @@ def check_charging_necessity(depot, customers, stations, B, consumption_rate):
     for c in customers:
         if np.linalg.norm(depot-c)*2*consumption_rate > 0.8*B: return True
     return False
-
-# def quick_feasibility_check(inst):
-#     if not inst['charging_required']: return False
-#     pts = np.vstack([inst['depot'].reshape(1,2), inst['stations']])
-#     maxd = inst['battery_capacity'] / inst['consumption_rate']
-#     for c in inst['customers']:
-#         if np.min(np.linalg.norm(c - pts, axis=1)) > maxd: return False
-#     if inst['demands'].sum() > 3*inst['load_capacity']: return False
-#     return True
-
-# def quick_feasibility_check(inst):
-#     pts = np.vstack([inst['depot'].reshape(1,2), inst['stations']])
-#     maxd = inst['battery_capacity'] / inst['consumption_rate']
-
-#     for c in inst['customers']:
-#         if np.min(np.linalg.norm(c - pts, axis=1)) > maxd:
-#             return False
-
-#     if inst['demands'].sum() > 3 * inst['load_capacity']:
-#         return False
-
-#     return True
-
+  
 def quick_feasibility_check(inst):
 
     depot = inst['depot']
@@ -237,7 +214,6 @@ def quick_feasibility_check(inst):
     for c in customers:
         if np.min(np.linalg.norm(c - pts, axis=1)) > max_range:
             return False
-
 
     # ------------------------------------------------
     # LOAD CAPACITY
@@ -272,33 +248,6 @@ def quick_feasibility_check(inst):
 
     return True
 
-# def induce_infeasibility(inst, rng=None, mode="energy"):
-#     """
-#     Make the instance fail quick_feasibility_check() deterministically.
-
-#     quick_feasibility_check fails iff:
-#       (A) ∃ customer with min distance to depot/stations > maxd (=B/r), OR
-#       (B) sum(demands) > 3*load_capacity
-#     """
-#     if rng is None:
-#         rng = np.random.default_rng()
-
-#     inst = copy.deepcopy(inst)
-
-#     if mode == "energy":
-#         # Guarantee failure of reachability: make maxd tiny
-#         # maxd = B/r ; make B so small that maxd < 1e-6
-#         inst['battery_capacity'] = 1e-6 * inst['consumption_rate']
-
-#     elif mode == "load":
-#         # Guarantee capacity failure
-#         inst['demands'] = inst['demands'].copy()
-#         inst['demands'][0] = 4.0 * inst['load_capacity']  # ensures sum > 3*load_capacity
-
-#     else:
-#         raise ValueError("Unsupported infeasibility mode")
-
-#     return inst
 
 import copy
 import numpy as np
@@ -392,106 +341,8 @@ def induce_infeasibility(inst, rng=None, mode="energy", severity=0.15):
         raise ValueError("Unsupported infeasibility mode")
 
     return inst
-# def induce_infeasibility(inst, rng=None, mode="energy", severity=0.1):
-#     """
-#     Inject controlled infeasibility while keeping the instance realistic.
 
-#     Modes:
-#         energy   -> reduce battery so some customers become unreachable
-#         load     -> exceed vehicle capacity
-#         time     -> shrink time windows
-#         stations -> remove charging stations
-#     """
-
-#     if rng is None:
-#         rng = np.random.default_rng()
-
-#     inst = copy.deepcopy(inst)
-
-#     if mode == "energy":
-
-#         # Reduce battery enough to break reachability
-#         inst['battery_capacity'] *= (1 - severity)
-
-#         # Ensure at least one customer becomes unreachable
-#         maxd = inst['battery_capacity'] / inst['consumption_rate']
-#         depot = inst['depot']
-#         customers = inst['customers']
-
-#         farthest = np.argmax(np.linalg.norm(customers - depot, axis=1))
-#         c = customers[farthest]
-
-#         if np.linalg.norm(c - depot) <= maxd:
-#             inst['battery_capacity'] *= 0.5
-
-#     elif mode == "load":
-
-#         # Increase demand so capacity constraint breaks
-#         idx = rng.integers(0, len(inst['demands']))
-#         inst['demands'][idx] += severity * inst['load_capacity'] * 4
-
-
-#     elif mode == "time":
-
-#         horizon = inst["time_horizon"]
-    
-#         tw = inst["time_windows"]
-    
-#         n = len(tw)
-    
-#         # choose 20–40% customers
-#         k = max(1, int(n * rng.uniform(0.2,0.4)))
-    
-#         idx = rng.choice(n, size=k, replace=False)
-    
-#         for i in idx:
-    
-#             ready, due = tw[i]
-    
-#             width = due - ready
-    
-#             # shrink window heavily
-#             new_due = ready + width * (0.1 + severity)
-    
-#             tw[i] = (ready, new_due)
-    
-#         inst["time_windows"] = tw
-
-#     # elif mode == "time":
-
-#     #     # Shrink time windows heavily
-#     #     new_tw = []
-#     #     for (a, b) in inst['time_windows']:
-
-#     #         width = b - a
-#     #         shrink = width * severity
-
-#     #         new_a = a + shrink
-#     #         new_b = b - shrink
-
-#     #         if new_b <= new_a:
-#     #             new_b = new_a + 0.01
-
-#     #         new_tw.append((new_a, new_b))
-
-#     #     inst['time_windows'] = new_tw
-
-#     elif mode == "stations":
-
-#         # Remove stations to break reachability
-#         if len(inst['stations']) > 2:
-#             inst['stations'] = inst['stations'][:-2]
-#         elif len(inst['stations']) > 1:
-#             inst['stations'] = inst['stations'][:-1]
-
-#     else:
-#         raise ValueError("Unsupported infeasibility mode")
-
-#     return inst
-
-
-
-# --- MASTER GENERATOR (FIXED) ---
+# --- MASTER GENERATOR  ---
 def generate_milp_feasible_instance(n_customers, n_stations, instance_type,
                                     random_seed=None, n_clusters=None,
                                     depot_mode='center', custom_depot=None,
@@ -511,7 +362,7 @@ def generate_milp_feasible_instance(n_customers, n_stations, instance_type,
                                     service_max=0.03):
     
     # 1. Initialize ONE Random Generator for the whole instance
-    # This ensures "Seed 42" always produces the exact same result, and "Seed 43" is totally different.
+    
     rng = np.random.default_rng(random_seed % (2**32 - 1) if random_seed is not None else None)
     
     # 2. Depot
@@ -519,16 +370,13 @@ def generate_milp_feasible_instance(n_customers, n_stations, instance_type,
     elif depot_mode == 'custom' and custom_depot is not None: depot = np.array(custom_depot)
     else: depot = np.array([0.5, 0.5])
 
-    # 3. Customers (Pass the RNG)
-    # Note: We must modify generate_customers to accept 'rng' object instead of 'random_seed' integer
-    # Or we just pass the seed. To keep it simple with your previous code, 
-    # we will rely on the integer seed logic inside generate_customers, which is fine.
+    # 3. Customers 
     customers, labels = generate_customers(n_customers, instance_type, random_seed, n_clusters, cluster_std, cluster_ratio, avoid_points=depot.reshape(1, 2))
     
     # 4. Physics 
     B = determine_battery_capacity(customers, depot, consumption_rate, battery_strategy, fixed_battery_val)
     
-    # 5. Stations (CRITICAL FIX: Pass 'rng')
+    # 5. Stations 
     candidates = place_necessary_charging_stations(depot, customers, B, consumption_rate, rng=rng)
     
     # Select/Generate Stations to match N_Stations count
@@ -536,7 +384,6 @@ def generate_milp_feasible_instance(n_customers, n_stations, instance_type,
     target_field_count = n_stations
     
     if len(field_candidates) > target_field_count:
-        # Use RNG to shuffle, so even the selection is deterministic per seed
         rng.shuffle(field_candidates) 
         field_stations = field_candidates[:target_field_count]
     elif len(field_candidates) < target_field_count:
@@ -560,7 +407,7 @@ def generate_milp_feasible_instance(n_customers, n_stations, instance_type,
             
     stations = np.array(final_list)
 
-    # 6. Demands & Windows (Pass RNG)
+    # 6. Demands & Windows 
     d, s = generate_demands_and_services(n_customers, vehicle_capacity, service_min, service_max, rng=rng)
     tw = assign_time_windows(n_customers, fraction=0.8, time_horizon=time_horizon, rng=rng) 
     req = check_charging_necessity(depot, customers, stations, B, consumption_rate)
