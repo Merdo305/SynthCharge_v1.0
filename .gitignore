@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+.test_tmp/
+.venv/
+venv/
+env/
+.idea/
+.vscode/
+build/
+dist/
+example_output/
+generated_instances/
+*.log

@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: >-
+  If you use SynthCharge, its generated instances, or this implementation in
+  academic work, please cite the associated paper.
+title: SynthCharge
+type: software
+authors:
+  - family-names: Daysalilar
+    given-names: Mertcan
+  - family-names: Uyguroglu
+    given-names: Fuat
+  - family-names: Nicolosi
+    given-names: Gabriel
+  - family-names: Meyers
+    given-names: Adam
+version: 0.1.0
+repository-code: https://github.com/Merdo305/SynthCharge
+url: https://arxiv.org/abs/2603.03230
+license: MIT
+preferred-citation:
+  type: article
+  title: >-
+    SynthCharge: An Electric Vehicle Routing Instance Generator with
+    Feasibility Screening to Enable Learning-Based Optimization and
+    Benchmarking
+  authors:
+    - family-names: Daysalilar
+      given-names: Mertcan
+    - family-names: Uyguroglu
+      given-names: Fuat
+    - family-names: Nicolosi
+      given-names: Gabriel
+    - family-names: Meyers
+      given-names: Adam
+  year: 2026
+  journal: arXiv preprint arXiv:2603.03230
+  doi: 10.48550/arXiv.2603.03230
+  url: https://arxiv.org/abs/2603.03230
+
